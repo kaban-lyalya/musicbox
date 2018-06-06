@@ -1,0 +1,31 @@
+{
+  "name": "musicbox",
+  "version": "1.0.0",
+  "description": "MusicBox",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kaban-lyalya/musicbox.git"
+  },
+  "author": "Kaban LyaLya",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/kaban-lyalya/musicbox/issues"
+  },
+  "homepage": "https://github.com/kaban-lyalya/musicbox#readme",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "express": "^4.16.3",
+    "jsonwebtoken": "^8.2.2",
+    "mongoose": "^5.1.4",
+    "passport": "^0.4.0",
+    "passport-jwt": "^4.0.0",
+    "validator": "^10.3.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.17.5"
+  }
+}
