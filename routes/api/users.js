@@ -43,9 +43,9 @@ router.post("/register", (req, res) => {
     if (user) {
       return res.status(400).json({ email: "Email already exist" });
     }
-    // for save in MongoDB
-    let fileName = "";
 
+    // for save in MongoDB
+    let fileName;
     if (req.body.avatar) {
       fileName = Date.now() + "-" + req.body.avatar;
     } else {
@@ -55,8 +55,7 @@ router.post("/register", (req, res) => {
     if (fileName !== config.defaultAvatar) {
       uploadImg(req, res, err => {
         if (err) {
-          res.json({ msg: err });
-          return;
+          return res.json({ msg: err });
         }
 
         // Resize buffer and write
@@ -93,10 +92,9 @@ router.post("/register", (req, res) => {
 // @desc   Login user
 // @Access Public
 router.post("/login", (req, res) => {
-  console.log(req.body.password);
+  // remove "undefined" for Mongoose (in Query not understand)
   const email = req.body.email ? req.body.email : "";
   const name = req.body.name ? req.body.name : "";
-  console.log(email, name);
 
   // find user (name or email)
   User.findOne()
