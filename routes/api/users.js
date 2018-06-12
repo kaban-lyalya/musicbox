@@ -89,8 +89,8 @@ router.post("/register", (req, res) => {
   });
 });
 
-// @route  POST api/users/register
-// @desc   Register user
+// @route  POST api/users/login
+// @desc   Login user
 // @Access Public
 router.post("/login", (req, res) => {
   console.log(req.body.password);
