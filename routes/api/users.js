@@ -1,11 +1,14 @@
 const router = require("express").Router();
-const User = require("../../models/User");
-const config = require("../../config/key");
 const multer = require("multer");
 const sharp = require("sharp");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const passport = require("passport");
+
+const User = require("../../models/User");
+const config = require("../../config/key");
+const validateRegister = require("../../validation/register");
+const validateLogin = require("../../validation/login");
 
 // Init multer (memory eater)
 const storageImg = multer.memoryStorage();
@@ -41,9 +44,17 @@ router.get("/test", (req, res) => res.json({ msg: "Users work" }));
 // @desc   Register user
 // @Access Public
 router.post("/register", (req, res) => {
+  // Check validations
+  const { errors, isValid } = validateRegister(req.body);
+
+  if (!isValid) {
+    return res.status(400).json(errors);
+  }
+
   User.findOne({ email: req.body.email }).then(user => {
     if (user) {
-      return res.status(400).json({ email: "Email already exist" });
+      errors.email = "Email already exist";
+      return res.status(400).json(errors);
     }
 
     // for save in MongoDB
@@ -57,7 +68,8 @@ router.post("/register", (req, res) => {
     if (fileName !== config.defaultAvatar) {
       uploadImg(req, res, err => {
         if (err) {
-          return res.json({ msg: err });
+          errors.image = err;
+          return res.json(errors);
         }
 
         // Resize buffer and write
@@ -66,7 +78,10 @@ router.post("/register", (req, res) => {
           .toFile(config.filePath + fileName)
           .then(() => console.log(config.fileToDB + fileName))
           .then(() => res.json({ msg: "IMG Uploaded" }))
-          .catch(err => res.json({ msg: err }));
+          .catch(err => {
+            errors.image = err;
+            res.json(errors);
+          });
       });
     }
 
@@ -94,6 +109,13 @@ router.post("/register", (req, res) => {
 // @desc   Login user
 // @Access Public
 router.post("/login", (req, res) => {
+  // Check validations
+  const { errors, isValid } = validateLogin(req.body);
+
+  if (!isValid) {
+    return res.status(400).json(errors);
+  }
+
   // remove "undefined" for Mongoose (in Query not understand)
   const email = req.body.email ? req.body.email : "";
   const name = req.body.name ? req.body.name : "";
@@ -103,7 +125,8 @@ router.post("/login", (req, res) => {
     .or([{ email }, { name }])
     .then(user => {
       if (!user) {
-        return res.status(404).json({ msg: "User not found" });
+        errors.email = "User not found";
+        return res.status(404).json(errors);
       }
 
       // Check password
@@ -127,7 +150,8 @@ router.post("/login", (req, res) => {
             }
           );
         } else {
-          return res.status(400).json({ msg: "Password incorrect" });
+          errors.password = "Password incorrect";
+          return res.status(400).json(errors);
         }
       });
     });
