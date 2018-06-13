@@ -116,13 +116,9 @@ router.post("/login", (req, res) => {
     return res.status(400).json(errors);
   }
 
-  // remove "undefined" for Mongoose (in Query not understand)
-  const email = req.body.email ? req.body.email : "";
-  const name = req.body.name ? req.body.name : "";
-
   // find user (name or email)
   User.findOne()
-    .or([{ email }, { name }])
+    .or([{ email: req.body.login }, { name: req.body.login }])
     .then(user => {
       if (!user) {
         errors.email = "User not found";

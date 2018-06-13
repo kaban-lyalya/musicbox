@@ -3,7 +3,7 @@ const isEmpty = require("./isempty");
 const validateLogin = data => {
   let errors = {};
 
-  if (isEmpty(data.name) || isEmpty(data.email)) {
+  if (isEmpty(data.login)) {
     errors.name = "Name or Email is required";
   }
 
