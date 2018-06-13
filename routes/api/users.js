@@ -4,6 +4,8 @@ const config = require("../../config/key");
 const multer = require("multer");
 const sharp = require("sharp");
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const passport = require("passport");
 
 // Init multer (memory eater)
 const storageImg = multer.memoryStorage();
@@ -100,21 +102,49 @@ router.post("/login", (req, res) => {
   User.findOne()
     .or([{ email }, { name }])
     .then(user => {
-      console.log(user);
       if (!user) {
         return res.status(404).json({ msg: "User not found" });
       }
 
       // Check password
       bcrypt.compare(req.body.password, user.password).then(isMatch => {
-        console.log(isMatch);
         if (isMatch) {
-          res.json({ msg: "Success" });
+          // add JWT
+          const payload = {
+            id: user.id,
+            name: user.name,
+            avatar: user.avatar
+          };
+          jwt.sign(
+            payload,
+            config.secretKey,
+            { expiresIn: 3600 },
+            (err, token) => {
+              res.json({
+                success: true,
+                token: "Bearer " + token
+              });
+            }
+          );
         } else {
           return res.status(400).json({ msg: "Password incorrect" });
         }
       });
     });
 });
+
+// @route  GET api/users/current
+// @desc   Return current user
+// @Access Private
+router.get(
+  "/current",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    res.json({
+      id: req.user.id,
+      name: req.user.name
+    });
+  }
+);
 
 module.exports = router;
